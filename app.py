@@ -10,13 +10,14 @@ from config import ConfigIO
 
 print("Welcome to the Health Watch!")
 
+'''
 try:
 	cfg = ConfigIO()
 	if cfg.readProp("configured") == "no":
-		'''
+		''
 		if the first configuration was not made,
 		we import the module and we do it
-		'''
+		''
 		from first_start import firstConfiguration
 		guide = firstConfiguration()
 		guide.askUser()
@@ -26,3 +27,13 @@ try:
 except Exception as gen_error:
 	print("\nAttention, " + str(gen_error))
 	input("Press any key to exit..")
+
+'''
+cfg = ConfigIO()
+if cfg.readProp("configured") == "no":
+	from first_start import firstConfiguration
+	guide = firstConfiguration()
+	guide.askUser()
+	
+app = HealthTimer()
+app.clock()

@@ -11,4 +11,6 @@ class CommonMethods():
 
     def convertToSeconds(self,arrToConvert):
         #converts an array of strings into an int of seconds
-        return (int(arrToConvert[0]) * 3600) + (int(arrToConvert[1]) * 60)
+        hours = arrToConvert[0]
+        minutes = arrToConvert[1]
+        return int(hours) * 3600 + (int(minutes) * 60)

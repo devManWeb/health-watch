@@ -103,18 +103,21 @@ class HealthTimer():
 					timerValue = minToSec(5)
 					Timer(timerValue, timeChecker).start()
 					notify.message("Time to take a break!")
-					#TODO:implement notify.timeBar(start,end)
+					notify.setInterval(start,5)
+					notify.timeBar()
 				else:
 					timerValue = minToSec(55)
 					Timer(timerValue, timeChecker).start()
 					notify.message("Time to work now!")
-					#TODO:implement notify.timeBar(start,end)
+					notify.setInterval(start,55)
+					notify.timeBar()
 
 			elif self.compareTime(lunchStart,lunchEnd):
 				timerValue = self.timeTo(lunchEnd)
 				Timer(timerValue, timeChecker).start()
 				notify.message("Time to go eating!")
-				#TODO:implement notify.timeBar(start,end)
+				notify.setStartEnd(lunchStart,lunchEnd)
+				notify.timeBar()
 
 			else:
 				notify.message("Now it's not time to work!")
