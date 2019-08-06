@@ -16,7 +16,7 @@ class ConfigIO():
     def readTime(self,toRead):
         '''
         reads the data from the configuration file
-        pepares an array with hours and minutes as integers
+        we prepare an array with integers
         '''
         fromCfg =  self.config["DEFAULT"][toRead]
         newArr = fromCfg.split(":")
@@ -24,6 +24,7 @@ class ConfigIO():
         return intValues
 
     def writeProp(self,toWrite,newValue):
+        #reads the data from the ini file
         self.config['DEFAULT'][toWrite] = newValue
         #actual writing on config.ini
         with open("config_file.ini", "w") as newParams:    

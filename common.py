@@ -14,3 +14,9 @@ class CommonMethods():
         hours = arrToConvert[0]
         minutes = arrToConvert[1]
         return int(hours) * 3600 + (int(minutes) * 60)
+
+    def formatMinute(self,minute):
+        #if we exceed 59 minutes, we start from 0
+        if minute > 59:
+            minute = minute - 60
+        return minute

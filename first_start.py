@@ -28,21 +28,65 @@ class firstConfiguration():
         else:
             return False
 
-    def collectUserInput(self,inputTxt,configIndex):
-        #Collects the data in the correct format
-        insertedValue = str(input(inputTxt))
+    def isYesNo(self,userInput):
+        #checks if the input is "yes" or "no"
+        userInput = str(userInput).lower()
+        if userInput == "yes" or userInput == "no":
+            return True
+        else:
+            return False
+
+    def isValidPause(self,userInput):
+        #the pause must be between 1 and 10 minutes
+        userInput = int(userInput)
+        print(type(userInput))
+        if 0 < userInput <= 10:
+            return True
+        else:
+            return False
+
+    def collectUserInput(self,inputTxt,configIndex,typeInput):
+        '''
+        Collects the data in the correct format
+        typeInput is the type to be inserted (hour/yesNo/pause)
+        '''
+
+        def controlInput(test,param):
+            '''
+            control the inserted data with the right test
+            we pass param to controlInput
+            '''
+            if test == False:
+                print("Invalid value, try again!")
+                self.collectUserInput(inputTxt,configIndex,param)
+            else:
+                cfg.writeProp(configIndex,insertedValue)     
+
+        insertedValue = str(input(inputTxt))            
+
         if not insertedValue:
             #if the inserted string is empty
             print("Previous value keeped!")
-        elif self.isValidHour(insertedValue) == False:
-            print("Invalid value, try again!")
-            self.collectUserInput(inputTxt,configIndex)
+
+        elif typeInput == "hour":
+            controlInput(self.isValidHour(insertedValue),"hour")
+
+        elif typeInput == "yesNo":
+            controlInput(self.isYesNo(insertedValue),"yesNo")
+
+        elif typeInput == "pause":
+            controlInput(self.isValidPause(insertedValue),"pause")
+
         else:
-            cfg.writeProp(configIndex,insertedValue)
+            raise("Not a valid input!")  
 
     def askUser(self): 
-        self.collectUserInput("Enter the work start time (default 08:30): ","workStart")
-        self.collectUserInput("Enter the work end time (default 18:00): ","workEnd")
-        self.collectUserInput("Enter the start time of the lunch break (default 12:30): ","lunchStart")
-        self.collectUserInput("Enter the end time of the lunch break (default 14:00): ","lunchEnd")
-        cfg.writeProp("configured","yes")
+        self.collectUserInput("Enter the work start time (default 08:30): ","workstart","hour")
+        self.collectUserInput("Enter the work end time (default 18:00): ","workend","hour")
+        self.collectUserInput("Is the work part-time? (default no): ","isparttime","yesNo")
+        if cfg.readProp("isparttime") == "no":
+            #only if there is a full time job
+            self.collectUserInput("Enter the start time of the lunch break (default 12:30): ","lunchstart","hour")
+            self.collectUserInput("Enter the end time of the lunch break (default 14:00): ","lunchend","hour")
+        self.collectUserInput("Enter the length of the pause (1-10 minutes, default 5): ","pauselength","pause")
+        cfg.writeProp("isconfigured","yes")
