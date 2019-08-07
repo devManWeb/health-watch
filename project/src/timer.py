@@ -3,9 +3,10 @@ This is the main timer. Based on the current hour and minute,
 we determine if it's time to take a break, to work or it is lunch time.
 '''	
 from threading import Timer
-from config import ConfigIO
-from common import CommonMethods
-from notification import UserNotification
+
+from project.src.config import ConfigIO
+from project.src.common import CommonMethods
+from project.src.notification import UserNotification	
 
 cfg = ConfigIO()
 comm = CommonMethods()

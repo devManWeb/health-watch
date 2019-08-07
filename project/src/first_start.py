@@ -3,15 +3,12 @@ This moduled is used at the first time,
 when we need to configure the work time bands
 '''
 import re
-from config import ConfigIO
+
+from project.src.config import ConfigIO  
 
 cfg = ConfigIO()
 
-class firstConfiguration():
-
-    def __init__(self):
-        print("\nFirst configuration procedure")
-        print("Please enter the required hours (leave empty to confirm the default value)\n")
+class FirstConfiguration():
 
     def isValidHour(self,userInput):
         '''
@@ -23,10 +20,7 @@ class firstConfiguration():
             userArr = userInput.split(":")
             if 0 <= int(userArr[0]) <= 23 and 0 <= int(userArr[1]) <= 59:
                 return True
-            else:
-                return False
-        else:
-            return False
+        return False #if the other cases are not valid
 
     def isYesNo(self,userInput):
         #checks if the input is "yes" or "no"
@@ -39,7 +33,6 @@ class firstConfiguration():
     def isValidPause(self,userInput):
         #the pause must be between 1 and 10 minutes
         userInput = int(userInput)
-        print(type(userInput))
         if 0 < userInput <= 10:
             return True
         else:
@@ -78,9 +71,11 @@ class firstConfiguration():
             controlInput(self.isValidPause(insertedValue),"pause")
 
         else:
-            raise("Not a valid input!")  
+            raise TypeError("Not a valid input!")  
 
     def askUser(self): 
+        print("\nFirst configuration procedure")
+        print("Please enter the required hours (leave empty to confirm the default value)\n")
         self.collectUserInput("Enter the work start time (default 08:30): ","workstart","hour")
         self.collectUserInput("Enter the work end time (default 18:00): ","workend","hour")
         self.collectUserInput("Is the work part-time? (default no): ","isparttime","yesNo")

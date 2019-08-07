@@ -4,7 +4,8 @@ and to show a progress bar
 '''
 from sys import stdout
 from time import sleep
-from common import CommonMethods
+
+from project.src.common import CommonMethods
 
 comm = CommonMethods()
 

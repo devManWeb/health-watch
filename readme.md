@@ -5,3 +5,15 @@ Based on the configured parameters and the current time, it shows when it's time
 The first time you open the script, you can configure the start and end time, whether it is a part-time job or not, when to take a lunch break and the duration of the break.
 
 Important: the script is still in development, at the moment it does not work and must be tested. There are several TODOs and FIXMEs
+
+To use this script, stay in the root folder and use:
+
+```
+python -m project.src.app
+```
+
+To run test, stay in the root folder and use:
+
+```
+python -m project.tests.nameOfTheTest
+```
