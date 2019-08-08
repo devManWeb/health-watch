@@ -6,14 +6,16 @@ The first time you open the script, you can configure the start and end time, wh
 
 Important: the script is still in development, at the moment it does not work and must be tested. There are several TODOs and FIXMEs
 
-To use this script, stay in the root folder and use:
+To use this script, in the root folder of the project use:
 
 ```
 python -m project.src.app
 ```
 
-To run test, stay in the root folder and use:
+To run tests, in the root folder of the project use:
 
 ```
 python -m project.tests.nameOfTheTest
 ```
+
+where nameOfTheTest is the desired test.

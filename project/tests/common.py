@@ -19,6 +19,10 @@ class TestCommonMethods(unittest.TestCase):
         with self.assertRaises(TypeError):
             toTest.convertToSeconds(["3","0"])
             toTest.convertToSeconds([3,"08"])
+        with self.assertRaises(ValueError):
+            toTest.convertToSeconds([27,400])
+            toTest.convertToSeconds([3,61])
+            toTest.convertToSeconds([25,59])
 
     def testFormatMin(self):
 

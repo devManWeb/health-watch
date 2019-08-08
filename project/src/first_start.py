@@ -41,6 +41,8 @@ class FirstConfiguration():
     def collectUserInput(self,inputTxt,configIndex,typeInput):
         '''
         Collects the data in the correct format
+        inputTxt is the user data to be checked
+        configIndex is the name in the .ini configuration file
         typeInput is the type to be inserted (hour/yesNo/pause)
         '''
 
@@ -52,8 +54,10 @@ class FirstConfiguration():
             if test == False:
                 print("Invalid value, try again!")
                 self.collectUserInput(inputTxt,configIndex,param)
+                return False
             else:
                 cfg.writeProp(configIndex,insertedValue)     
+                return True 
 
         insertedValue = str(input(inputTxt))            
 
@@ -71,7 +75,9 @@ class FirstConfiguration():
             controlInput(self.isValidPause(insertedValue),"pause")
 
         else:
-            raise TypeError("Not a valid input!")  
+            print("Invalid input, try again!")
+            cfg.writeProp(configIndex,insertedValue)
+            return False
 
     def askUser(self): 
         print("\nFirst configuration procedure")

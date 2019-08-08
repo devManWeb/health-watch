@@ -26,7 +26,7 @@ if __name__ == '__main__':
 			
 		app = HealthTimer()
 		app.clock()
-
+	
 	except Exception as gen_error:
 		print("\nAttention, there was an error!")
 		input("Press any key to exit..")

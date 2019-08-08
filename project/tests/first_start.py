@@ -5,8 +5,11 @@ toTest = FirstConfiguration()
 
 class TestConfigMethods(unittest.TestCase):
     
-    #this methods should always start with "test"
-
+    '''
+    this methods should always start with "test"
+    True is for success
+    False is for failure
+    '''
     def testIsValidHour(self):
         self.assertTrue(toTest.isValidHour("04:59"))
         self.assertTrue(toTest.isValidHour("3:59"))
@@ -32,8 +35,7 @@ class TestConfigMethods(unittest.TestCase):
         self.assertFalse(toTest.isValidPause(-11))
         self.assertFalse(toTest.isValidPause(40))
 
-
-    #TODO:def collectUserInput(self): 
+    #collectUserInput and askUser are not tested
 
 if __name__ == '__main__':
     unittest.main()

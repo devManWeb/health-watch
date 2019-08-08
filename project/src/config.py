@@ -2,6 +2,7 @@
 This module takes care of reading config_file.ini,
 as well as writing the parameters when needed
 '''
+
 import configparser
 
 class ConfigIO():
@@ -22,7 +23,7 @@ class ConfigIO():
     def readTime(self,toRead):
         '''
         reads the data from the configuration file
-        we prepare an array with integers
+        we prepare a list of integers (hours and minutes)
         the read index must be a string
         '''
         if type(toRead) is str:

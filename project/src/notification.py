@@ -1,7 +1,5 @@
-'''
-This modules is used to notify the user in the terminal 
-and to show a progress bar
-'''
+#notify the user and to show a progress bar
+
 from sys import stdout
 from time import sleep
 
@@ -14,9 +12,6 @@ class UserNotification():
 	def __self__(self):
 		self.startTimeArr = ["0","0"]
 		self.endTimeArr = ["0","0"]
-		self.intervalAmount = 0
-		self.intervalDelay = 0
-		self.isInterval = False
 
 	def getDateStr(self):
 		
@@ -52,9 +47,7 @@ class UserNotification():
 		'''
 		self.startTimeArr = newStart
 		self.endTimeArr = newEnd
-		self.intervalAmount = 0
-		self.intervalDelay = 0
-		self.isInterval = False
+
 
 	def setInterval(self,newStart,minutes,delay):
 		'''
@@ -63,11 +56,79 @@ class UserNotification():
 		minutes is the duration of the interval in minutes, 
 		delay is the delay in minutes
 		'''
-		self.startTimeArr = newStart
-		self.endTimeArr = ["0","0"]
-		self.intervalAmount = minutes * 60
-		self.intervalDelay = delay * 60
-		self.isInterval = True
+
+		def addMinutesToHour(hour,minutesToAdd):
+			'''
+			this method is used for adding minutesToAdd to hour
+			hour is a list of integers (hours,minutes)
+			minutesToAdd is an integer in minutes
+			if we get an hour over 23:59, we fix it
+			'''
+	
+			addHours = int(minutesToAdd // 60)
+			addMinutes = minutesToAdd - (addHours * 60)
+			
+			resultHours = hour[0] + addHours
+			resultMinutes = hour[1] + addMinutes
+	
+			extraMin = 0
+			extraHour = 0
+	
+			if resultMinutes > 59:
+				extraMin = resultMinutes - 60
+				resultMinutes = extraMin
+				resultHours = resultHours + 1
+	
+			if resultHours > 23:
+				extraHour = resultHours - 23
+				resultHours = extraHour
+
+			return [resultHours,resultMinutes]
+
+		self.startTimeArr = addMinutesToHour(newStart,delay)
+		self.endTimeArr = addMinutesToHour(self.startTimeArr,minutes)
+
+	def getBarLength(self,actual):
+		'''
+		returns the percentage value fort the progress bar
+		only if it is between 0 and 100
+		otherwise, we raise a ValueError
+		08/08/2019: actual is added as a param for testing purpouse
+		actual is a list of integers (hours and minutes) with the actual time
+		'''
+
+		positionBar = 0
+		actualSeconds = comm.convertToSeconds(actual)	
+
+		def correctDiffDays(endSeconds,startSeconds):
+			'''
+			if end and start are in two diffent days
+			we add an entire day in seconds
+			otherwise, we do nothing
+			'''
+			if endSeconds < startSeconds:
+				return endSeconds + (24 * 60 * 60)
+			else:
+				return endSeconds
+
+		'''
+		if we have an interval between AA:BB and CC:DD
+		(endSeconds - startSeconds) : (actualSeconds - startSeconds) = 100 : positionBar
+		'''
+		startSeconds = comm.convertToSeconds(self.startTimeArr)
+		endSeconds = comm.convertToSeconds(self.endTimeArr)
+
+		actualSeconds = correctDiffDays(actualSeconds,startSeconds)
+		endSeconds = correctDiffDays(endSeconds,startSeconds)
+
+		deltaSec = endSeconds - startSeconds
+		fixActualSec = actualSeconds - startSeconds
+		positionBar = fixActualSec * 100 / deltaSec
+
+		if positionBar < 0 or positionBar > 100:
+			raise ValueError("Bar value is not between 0 and 100%")
+		else:
+			return positionBar
 
 	def drawBar(self,count):
 		#draw the progress bar on the terminal
@@ -76,63 +137,15 @@ class UserNotification():
 		percentual = round(100.0 * count / 100, 1)
 		barTxt = '#' * value + '-' * (barLength - value)
 		stdout.write(self.getDateStr() + ' [%s] %s%s%s\r' % (barTxt, percentual, '%', ""))
-		stdout.flush()	
-
-	def getBarLength(self):
-		#calculates the percentage length to be shown in the progress bar
-		positionBar = 0
-		actualTime = comm.convertToSeconds(comm.getActualTime())
-
-		if self.isInterval:
-			'''
-			if we have the start time AA:BB, the duration of the interval and the delay
-			we also consider when we open the app and if the pause is already started
-			we add the delay (to know what is the start hour, go to timer.py)
-			positionBar = actualSeconds * 100 / endSeconds
-			'''
-			
-			hoursFromDelay = self.intervalDelay // 3600
-			minutesFromDelay = self.intervalDelay - hoursFromDelay
-
-			realHourStart = comm.getActualTime()[0] + hoursFromDelay
-			tempMinutesStart = self.startTimeArr[1] + minutesFromDelay
-			realMinutesStart = comm.formatMinute(tempMinutesStart)
-
-			if tempMinutesStart != realMinutesStart:
-				#when the minutes are over 59, we fix the hours
-				realHourStart = realHourStart + 1
-
-			realStart = [realHourStart,realMinutesStart]
-			startSeconds = comm.convertToSeconds(realStart)
-			actualSeconds = comm.convertToSeconds(comm.getActualTime())		
-			actualFixed = actualSeconds - startSeconds
-
-			positionBar = actualFixed * 100 / self.intervalAmount
-
-		else:
-			'''
-			if we have an interval between AA:BB and CC:DD
-			(endTime - startTime) : actualTime = 100 : positionBar
-			'''
-			endIntSec = comm.convertToSeconds(self.startTimeArr)
-			startIntSec = comm.convertToSeconds(self.endTimeArr)
-			if endIntSec >= startIntSec:
-				'''
-				if endIntSec and startIntSec are in two diffent days
-				we add 24 * 3600 seconds to the end
-				'''
-				endIntSec = endIntSec + (24 * 3600)
-			deltaSec = endIntSec - startIntSec	
-			positionBar = actualTime * 100 / deltaSec
-
-		return positionBar
+		stdout.flush()				
 			
 	def showProgressBar(self):
 		'''
 		draws the bar every second, for the whole interval in which it is needed
 		function performed every second, when we are in the desired interval
 		'''
-		length = self.getBarLength()
+		actualTime = comm.getActualTime()
+		length = self.getBarLength(actualTime)
 		self.drawBar(length)
 		if length < 100:
 			sleep(60)
