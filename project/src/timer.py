@@ -12,13 +12,14 @@ cfg = ConfigIO()
 comm = CommonMethods()
 notify = UserNotification()
 
-class HealthTimer():
+class OnlyForThisFile():
+    #specific methods to be used only in this file
 
 	def compareTime(self,start,actual,end):
 		'''
 		is actual between start and end?
 		actual,start and end must be lists of integers (hours and minutes)
-		this function returns True or False when with no error
+		this function returns True or False when there is no error
 		08/08/2019: actual was added to the params for testing purpose
 		'''
 		startSec = comm.convertToSeconds(start)
@@ -76,93 +77,118 @@ class HealthTimer():
 			if startPauseMinute <= actualMinute < endpauseMinute:
 				return True
 			else:
-				return False			
+				return False
 
-	def clock(self):
+	def minToSeconds(self,mins):
+		#converts integers minutes to seconds
+		if(type(mins) != int):
+			raise TypeError("Must be integers")
+		else:
+			return mins * 60
 
-		workStart = cfg.readTime("workstart")
-		workEnd = cfg.readTime("workend")
-		lunchStart = cfg.readTime("lunchstart")
-		lunchEnd = cfg.readTime("lunchend")
-		isPartTime = cfg.readProp("isparttime")
-		pauseLength = int(cfg.readProp("pauseLength"))
-		workLenght = 60 - pauseLength
+	def getActualStart(self,actual,startPoint):
+		'''
+		with this app we calculate the actual start hour
+		to be used for notify.setInterval()
+		we take the actual hour and the minute of startPoint
+		this is used with workStart or lunchEnd
+		'''
+		return [actual[0],startPoint[1]]
+
+
+private = OnlyForThisFile()
+
+
+def clockManager():
+
+	workStart = cfg.readTime("workstart")
+	workEnd = cfg.readTime("workend")
+	lunchStart = cfg.readTime("lunchstart")
+	lunchEnd = cfg.readTime("lunchend")
+	isPartTime = cfg.readProp("isparttime")
+	pauseLength = int(cfg.readProp("pauseLength"))
+	workLenght = 60 - pauseLength
+
+	def timeChecker():
+
+		timerValue = 30
 
 		actualTime = comm.getActualTime()
+		actualStart = [0,0]
+	
+		if isPartTime == "yes":
 
-		def timeChecker():
+			if private.compareTime(workStart,actualTime,workEnd):
 
-			def minToSec(mins):
-				return mins * 60
-
-			timerValue = 0
-		
-			if isPartTime == "yes":
-
-				if self.compareTime(workStart,actualTime,workEnd):
-					if self.isInPause(workStart,actualTime,pauseLength):
-						timerValue = minToSec(pauseLength)
-						Timer(timerValue, timeChecker).start()
-
-						notify.message("Time to take a break!")
-						notify.setInterval(workStart,pauseLength,workLenght)
-						notify.showProgressBar()
-					else:
-						#FIXME:stop work at endWork
-						timerValue = minToSec(workLenght)
-						Timer(timerValue, timeChecker).start()
-
-						notify.message("Time to work now!")
-						notify.setInterval(workStart,workLenght,0)
-						notify.showProgressBar()
-
+				actualStart = private.getActualStart(actualTime,workStart)
+				
+				if private.isInPause(workStart,actualTime,pauseLength):
+					#FIXME:crashes in some cases
+					notify.message("Time to take a break!")
+					notify.setInterval(actualStart,pauseLength,workLenght)		
 				else:
-					notify.message("Now it's not time to work!","exit")
+					'''
+					FIXME:if we are in the last working hour, we might get 
+					a wrong result on the progress bar
+					'''
+					notify.message("Time to work now!")
+					notify.setInterval(actualStart,workLenght,0)
 
-			elif isPartTime == "no":
+				notify.showProgressBar().start()
+				Timer(timerValue, timeChecker).start()
 
-				if self.compareTime(workStart,actualTime,lunchStart):
-					if self.isInPause(workStart,actualTime,pauseLength):
-						timerValue = minToSec(pauseLength)
-						Timer(timerValue, timeChecker).start()
+			else:
+				notify.message("Now it's not time to work!","exit")
 
-						notify.message("Time to take a break!")
-						notify.setInterval(workStart,pauseLength,workLenght)
-						notify.showProgressBar()
-					else:
-						timerValue = minToSec(workLenght)
-						Timer(timerValue, timeChecker).start()
+		elif isPartTime == "no":
 
-						notify.message("Time to work now!")
-						notify.setInterval(workStart,workLenght,0)
-						notify.showProgressBar()
+			if private.compareTime(workStart,actualTime,lunchStart):
 
-				elif self.compareTime(lunchStart,actualTime,lunchEnd):
-					timerValue = self.timeTo(actualTime,lunchEnd)
-					Timer(timerValue, timeChecker).start()
+				actualStart = private.getActualStart(actualTime,workStart)
 
-					notify.message("Time to go eating!")
-					notify.setStartEnd(lunchStart,lunchEnd)
-					notify.showProgressBar()
-
-				elif self.compareTime(lunchEnd,actualTime,workEnd):
-					if self.isInPause(lunchEnd,actualTime,pauseLength):
-						timerValue = minToSec(pauseLength)
-						Timer(timerValue, timeChecker).start()
-						#FIXME:pause not starting
-						notify.message("Time to take a break!")
-						notify.setInterval(lunchEnd,pauseLength,workLenght)
-						notify.showProgressBar()
-					else:
-						#FIXME:stop work at endWork
-						timerValue = minToSec(workLenght)
-						Timer(timerValue, timeChecker).start()
-
-						notify.message("Time to work now!")
-						notify.setInterval(lunchEnd,workLenght,0)
-						notify.showProgressBar()
-
+				if private.isInPause(workStart,actualTime,pauseLength):
+					#FIXME:crashes in some cases
+					notify.message("Time to take a break!")
+					notify.setInterval(actualStart,pauseLength,workLenght)
 				else:
-					notify.message("Now it's not time to work!","exit")
+					'''
+					FIXME:if we are in the last working hour, we might get 
+					a wrong result on the progress bar
+					'''
+					notify.message("Time to work now!")
+					notify.setInterval(actualStart,workLenght,0)
 
-		timeChecker() #first timer initialization
+				notify.showProgressBar()
+				Timer(timerValue, timeChecker).start()
+
+			elif private.compareTime(lunchStart,actualTime,lunchEnd):
+
+				notify.message("Time to go eating!")
+				notify.setStartEnd(lunchStart,lunchEnd)
+
+				notify.showProgressBar()
+				Timer(timerValue, timeChecker).start()
+
+			elif private.compareTime(lunchEnd,actualTime,workEnd):
+
+				actualStart = private.getActualStart(actualTime,lunchEnd)
+				
+				if private.isInPause(lunchEnd,actualTime,pauseLength):
+					#FIXME:crashes in some cases
+					notify.message("Time to take a break!")
+					notify.setInterval(actualStart,pauseLength,workLenght)
+				else:
+					'''
+					FIXME:if we are in the last working hour, we might get 
+					a wrong result on the progress bar
+					'''
+					notify.message("Time to work now!")
+					notify.setInterval(actualStart,workLenght,0)
+
+				notify.showProgressBar()
+				Timer(timerValue, timeChecker).start()
+
+			else:
+				notify.message("Now it's not time to work!","exit")
+
+	timeChecker() #first timer initialization

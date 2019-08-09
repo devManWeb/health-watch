@@ -8,8 +8,9 @@ from project.src.config import ConfigIO
 
 cfg = ConfigIO()
 
-class FirstConfiguration():
-
+class OnlyForThisFile():
+    #specific methods to be used only in this file
+    
     def isValidHour(self,userInput):
         '''
         is the entered data is in the correct time format AA:BB or A:BB?
@@ -79,15 +80,21 @@ class FirstConfiguration():
             cfg.writeProp(configIndex,insertedValue)
             return False
 
+
+private = OnlyForThisFile()   
+
+
+class FirstConfiguration():
+
     def askUser(self): 
         print("\nFirst configuration procedure")
         print("Please enter the required hours (leave empty to confirm the default value)\n")
-        self.collectUserInput("Enter the work start time (default 08:30): ","workstart","hour")
-        self.collectUserInput("Enter the work end time (default 18:00): ","workend","hour")
-        self.collectUserInput("Is the work part-time? (default no): ","isparttime","yesNo")
+        private.collectUserInput("Enter the work start time (default 08:30): ","workstart","hour")
+        private.collectUserInput("Enter the work end time (default 18:00): ","workend","hour")
+        private.collectUserInput("Is the work part-time? (default no): ","isparttime","yesNo")
         if cfg.readProp("isparttime") == "no":
             #only if there is a full time job
-            self.collectUserInput("Enter the start time of the lunch break (default 12:30): ","lunchstart","hour")
-            self.collectUserInput("Enter the end time of the lunch break (default 14:00): ","lunchend","hour")
-        self.collectUserInput("Enter the length of the pause (1-10 minutes, default 5): ","pauselength","pause")
+            private.collectUserInput("Enter the start time of the lunch break (default 12:30): ","lunchstart","hour")
+            private.collectUserInput("Enter the end time of the lunch break (default 14:00): ","lunchend","hour")
+            private.collectUserInput("Enter the length of the pause (1-10 minutes, default 5): ","pauselength","pause")
         cfg.writeProp("isconfigured","yes")

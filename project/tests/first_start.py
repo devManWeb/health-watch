@@ -1,7 +1,7 @@
 import unittest
-from project.src.first_start import FirstConfiguration
+from project.src.first_start import OnlyForThisFile
 
-toTest = FirstConfiguration()
+private = OnlyForThisFile()
 
 class TestConfigMethods(unittest.TestCase):
     
@@ -11,31 +11,31 @@ class TestConfigMethods(unittest.TestCase):
     False is for failure
     '''
     def testIsValidHour(self):
-        self.assertTrue(toTest.isValidHour("04:59"))
-        self.assertTrue(toTest.isValidHour("3:59"))
-        self.assertTrue(toTest.isValidHour("12:02"))
+        self.assertTrue(private.isValidHour("04:59"))
+        self.assertTrue(private.isValidHour("3:59"))
+        self.assertTrue(private.isValidHour("12:02"))
 
-        self.assertFalse(toTest.isValidHour("12222:2"))
-        self.assertFalse(toTest.isValidHour("2343"))
-        self.assertFalse(toTest.isValidHour(2))
+        self.assertFalse(private.isValidHour("12222:2"))
+        self.assertFalse(private.isValidHour("2343"))
+        self.assertFalse(private.isValidHour(2))
     
         
     def testIsYesNo(self):
-        self.assertTrue(toTest.isYesNo("yes"))
-        self.assertTrue(toTest.isYesNo("no"))
+        self.assertTrue(private.isYesNo("yes"))
+        self.assertTrue(private.isYesNo("no"))
 
-        self.assertFalse(toTest.isYesNo("3:59"))
-        self.assertFalse(toTest.isYesNo(1))
+        self.assertFalse(private.isYesNo("3:59"))
+        self.assertFalse(private.isYesNo(1))
 
     
     def testIsValidPause(self):
         for i in range(1,11):
-            self.assertTrue(toTest.isValidPause(i))
+            self.assertTrue(private.isValidPause(i))
 
-        self.assertFalse(toTest.isValidPause(-11))
-        self.assertFalse(toTest.isValidPause(40))
+        self.assertFalse(private.isValidPause(-11))
+        self.assertFalse(private.isValidPause(40))
 
-    #collectUserInput and askUser are not tested
+#collectUserInput and askUser in the FirstConfiguration class are not tested
 
 if __name__ == '__main__':
     unittest.main()

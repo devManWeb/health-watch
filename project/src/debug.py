@@ -11,19 +11,14 @@ from project.src.config import ConfigIO
 
 if __name__ == '__main__':
 
-	try:	
-		cfg = ConfigIO()
-		if cfg.readProp("isconfigured") == "no":
-			'''
-			if the first configuration was not made,
-			we import the module and we do it
-			'''
-			from first_start import FirstConfiguration
-			guide = FirstConfiguration()
-			guide.askUser()
-			
-		clockManager()
-	
-	except Exception as gen_error:
-		print("\nAttention, there was an error!")
-		input("Press any key to exit..")
+	cfg = ConfigIO()
+	if cfg.readProp("isconfigured") == "no":
+		'''
+		if the first configuration was not made,
+		we import the module and we do it
+		'''
+		from first_start import FirstConfiguration
+		guide = FirstConfiguration()
+		guide.askUser()
+		
+	clockManager()

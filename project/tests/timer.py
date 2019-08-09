@@ -1,14 +1,14 @@
 import unittest
 
-from project.src.timer import HealthTimer
+from project.src.timer import OnlyForThisFile
 
-toTest = HealthTimer()
+private = OnlyForThisFile()
 
 class TestTimerMethods(unittest.TestCase):
     
     #this methods should always start with "test"
 
-    def testCompareTime(self):
+    def testBetweenTwoHours(self):
 
         trueConditions = [
             #same day
@@ -29,7 +29,7 @@ class TestTimerMethods(unittest.TestCase):
             start = index[0]
             actual = index[1]
             end = index[2]
-            self.assertTrue(toTest.compareTime(start,actual,end))    
+            self.assertTrue(private.compareTime(start,actual,end))    
         
         falseConditions = [
             #same day
@@ -50,7 +50,7 @@ class TestTimerMethods(unittest.TestCase):
             start = index[0]
             actual = index[1]
             end = index[2]
-            self.assertFalse(toTest.compareTime(start,actual,end))    
+            self.assertFalse(private.compareTime(start,actual,end))    
         
         valueErrorConditions = [
             [[22,22],[22,22],[22,22]]
@@ -61,7 +61,7 @@ class TestTimerMethods(unittest.TestCase):
             actual = index[1]
             end = index[2]
             with self.assertRaises(ValueError):
-                toTest.compareTime(start,actual,end)
+                private.compareTime(start,actual,end)
         
 
     def testTimeTo(self):
@@ -79,7 +79,7 @@ class TestTimerMethods(unittest.TestCase):
             actual = index[0]
             endValue = index[1]
             result = index[2]
-            self.assertEqual(toTest.timeTo(actual,endValue),result)
+            self.assertEqual(private.timeTo(actual,endValue),result)
      
         valueErrorConditions = [
             [[12,59],[0,34]],
@@ -91,10 +91,10 @@ class TestTimerMethods(unittest.TestCase):
             actual = index[0]
             endValue = index[1]
             with self.assertRaises(ValueError):
-                toTest.timeTo(actual,endValue)
+                private.timeTo(actual,endValue)
         
                 
-    def testIsInPause(self):
+    def testIntervals(self):
 
         trueConditions = [
             [[8,55],[9,52],5],
@@ -109,9 +109,8 @@ class TestTimerMethods(unittest.TestCase):
             startPause = index[0]
             actual = index[1]
             pauseDuration = index[2]
-            self.assertTrue(toTest.isInPause(startPause,actual,pauseDuration))    
-    
-        
+            self.assertTrue(private.isInPause(startPause,actual,pauseDuration))    
+          
         falseConditions = [
             [[8,55],[9,0],5],
             [[9,12],[10,12],9],
@@ -125,11 +124,46 @@ class TestTimerMethods(unittest.TestCase):
             startPause = index[0]
             actual = index[1]
             pauseDuration = index[2]
-            self.assertFalse(toTest.isInPause(startPause,actual,pauseDuration))    
+            self.assertFalse(private.isInPause(startPause,actual,pauseDuration))    
+
+
+    def testMinToSeconds(self):
+
+        intValues = [
+            [56,3360],
+            [3,180],
+            [73,4380]
+        ]
+
+        for index in intValues:
+            self.assertEqual(private.minToSeconds(index[0]),index[1])
+
+        typeErrorConditions = [
+            [[8,55],5],
+            ["12",9]           
+        ]
+
+        for index in typeErrorConditions:
+            with self.assertRaises(TypeError):
+                private.minToSeconds(index[0])
+
         
+    def testGetActualStart(self):
 
-    #clock is not tested
+        listValues = [
+            [[23,57],[11,12],[23,12]],
+            [[3,47],[15,36],[3,36]],
+            [[0,27],[23,59],[0,59]]
+        ]
+        
+        for index in listValues:
+            actual = index[0]
+            startPoint = index[1]
+            result = index[2]
 
+            self.assertEqual(private.getActualStart(actual,startPoint),result)         
+
+#clockManager() is not tested
 
 if __name__ == '__main__':
     unittest.main()
