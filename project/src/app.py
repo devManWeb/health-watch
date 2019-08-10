@@ -18,7 +18,7 @@ if __name__ == '__main__':
 			if the first configuration was not made,
 			we import the module and we do it
 			'''
-			from first_start import FirstConfiguration
+			from project.src.first_start import FirstConfiguration
 			guide = FirstConfiguration()
 			guide.askUser()
 			
