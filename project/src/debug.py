@@ -6,12 +6,14 @@ The rest of the hour is for working.
 This script can be run at computer startup or opened during the working day.
 '''
 
-from project.src.timer import clockManager
+from project.src.timer import ClockManager
 from project.src.config import ConfigIO	
 
 if __name__ == '__main__':
 
 	cfg = ConfigIO()
+	app = ClockManager()
+
 	if cfg.readProp("isconfigured") == "no":
 		'''
 		if the first configuration was not made,
@@ -21,4 +23,4 @@ if __name__ == '__main__':
 		guide = FirstConfiguration()
 		guide.askUser()
 		
-	clockManager()
+	app.timeChecker()

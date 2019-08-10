@@ -40,3 +40,36 @@ class CommonMethods():
                 raise TypeError("Negative number")
         else:
             raise TypeError("Minute is not an integer")
+
+    def addMinutesToHour(self,hour,minutesToAdd):
+        '''
+        TODO:write tests for this
+        this method is used for adding minutesToAdd to hour
+        hour is a list of integers (hours,minutes)
+        minutesToAdd is an integer in minutes
+        if we get an hour over 23:59, we fix it
+        if minutesToAdd > 60, we get a ValueError
+        '''
+
+        if minutesToAdd > 60:
+            raise ValueError("Adding more than 60 minutes")
+
+        addHours = int(minutesToAdd // 60)
+        addMinutes = minutesToAdd - (addHours * 60)
+        
+        resultHours = hour[0] + addHours
+        resultMinutes = hour[1] + addMinutes
+
+        extraMin = 0
+        extraHour = 0
+
+        if resultMinutes > 59:
+            extraMin = resultMinutes - 60
+            resultMinutes = extraMin
+            resultHours = resultHours + 1
+
+        if resultHours > 23:
+            extraHour = resultHours - 24
+            resultHours = extraHour
+
+        return [resultHours,resultMinutes]

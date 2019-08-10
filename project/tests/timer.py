@@ -153,7 +153,8 @@ class TestTimerMethods(unittest.TestCase):
         listValues = [
             [[23,57],[11,12],[23,12]],
             [[3,47],[15,36],[3,36]],
-            [[0,27],[23,59],[0,59]]
+            [[0,27],[23,59],[0,59]],
+            [[15,57],[16,0],[15,0]]
         ]
         
         for index in listValues:
