@@ -1,10 +1,18 @@
+# Health-watch
+
 This script was created to avoid a sedentary life at the office. 
+Based on the user configuration parameters and the current time, it shows when it's time to take a break or to resume working.
 
-Based on the configured parameters and the current time, it shows when it's time to take a break.
+The first time you open the script, you can configure:
 
-The first time you open the script, you can configure the start and end time, whether it is a part-time job or not, when to take a lunch break and the duration of the break.
+* Start and end hour
+* is it a part-time job?
+* lounch break start and end hours
+* duration of breaks (1 to 10 minutes)
 
-Important: the script is still in development, at the moment it does not work and must be tested. There are several TODOs and FIXMEs
+Important: the script is still in development, at the moment it does not work correctly. There are several TODOs and FIXMEs.
+
+## Usage
 
 To use this script, in the root folder of the project use:
 
