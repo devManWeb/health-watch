@@ -92,9 +92,16 @@ class OnlyForThisFile():
 		with this app we calculate the actual start hour
 		to be used for notify.setInterval()
 		we take the actual hour and the minute of startPoint
+		if startPoint minutes are bigger than actual minutes,
+		we reduce the return value hours by one
 		this is used with workStart or lunchEnd
 		'''
-		realStartHour = actual[0]
+		if startPoint[1] > actual[1]:	
+			realStartHour = actual[0] - 1
+			if realStartHour < 0:
+				realStartHour = 23
+		else:
+			realStartHour = actual [0]
 		return [realStartHour,startPoint[1]]
 
 
@@ -113,26 +120,6 @@ class ClockManager():
 		self.pauseLength = int(cfg.readProp("pauseLength"))
 		self.workLenght = 60 - self.pauseLength
 		self.actualStart = [0,0]
-		self.isActualStartWritable = True
-
-	def freezeVariableInterval(self):
-		'''
-		this function was added because private.getActualStart(...)
-		has a problem, when the current hour changes, 
-		it returns the next hour (es, if it is 9:00, we get 9:05 instead of 8:05)
-		the solution was to call private.getActualStart(...) only once,
-		then wait for the next 60 minutes (or less)
-		'''
-		#inizio alle 8.05, il problema è che, appena passa l'ora attuale passa
-		#all'ora successiva, il risultato è cambiato di uno e questo porta a risultati errati
-		#SOLUZIONE: se sono all'interno di un intervallo, NON posso cambiare l'ora di partenza
-		self.isActualStartWritable = False
-		endTime = comm.addMinutesToHour(self.actualStart,60)
-		remainingSeconds = private.timeTo(self.actualStart,endTime)
-		Timer(remainingSeconds, self.setWritableTrue).start()
-	
-	def setWritableTrue(self):
-		self.isActualStartWritable = True
 
 	def timeChecker(self):
 		'''
@@ -140,15 +127,13 @@ class ClockManager():
 		calls the notification methods with the correct arguments
 		'''
 		actualTime = comm.getActualTime()
-		timerValue = 30
+		timerValue = 20 #change this for the update frequency, now is every 20seconds
 	
 		if self.isPartTime == "yes":
 
 			if private.compareTime(self.workStart,actualTime,self.workEnd):
-
-				if self.isActualStartWritable:
-					self.actualStart = private.getActualStart(actualTime,self.workStart)
-					self.freezeVariableInterval()
+				
+				self.actualStart = private.getActualStart(actualTime,self.workStart)
 				
 				if private.isInPause(self.workStart,actualTime,self.pauseLength):
 					'''
@@ -176,9 +161,7 @@ class ClockManager():
 
 			if private.compareTime(self.workStart,actualTime,self.lunchStart):
 
-				if self.isActualStartWritable:
-					self.actualStart = private.getActualStart(actualTime,self.workStart)
-					self.freezeVariableInterval()
+				self.actualStart = private.getActualStart(actualTime,self.workStart)
 
 				if private.isInPause(self.workStart,actualTime,self.pauseLength):
 					notify.message("Time to take a break!")
@@ -204,9 +187,7 @@ class ClockManager():
 
 			elif private.compareTime(self.lunchEnd,actualTime,self.workEnd):
 
-				if self.isActualStartWritable:
-					self.actualStart = private.getActualStart(actualTime,self.lunchEnd)
-					self.freezeVariableInterval()
+				self.actualStart = private.getActualStart(actualTime,self.lunchEnd)
 				
 				if private.isInPause(self.lunchEnd,actualTime,self.pauseLength):
 					notify.message("Time to take a break!")

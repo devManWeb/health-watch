@@ -52,7 +52,7 @@ class UserNotification():
 		if exitVal is "exit", we display "press any key to exit"
 		'''
 		os.system('cls||clear')
-		print("Welcome to Health Watch")
+		print("Welcome to the Health Watch")
 		print("\n" + msgText)
 		if exitVal == "exit":
 			input("Press any key to exit...")
@@ -112,7 +112,7 @@ class UserNotification():
 		deltaSec = endSeconds - startSeconds
 		fixActualSec = actualSeconds - startSeconds
 		positionBar = fixActualSec * 100 / deltaSec
-		
+
 		if positionBar < 0 or positionBar > 100:
 			raise ValueError("Bar value is not between 0 and 100%")
 		else:

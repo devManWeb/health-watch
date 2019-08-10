@@ -150,6 +150,8 @@ class TestTimerMethods(unittest.TestCase):
         
     def testGetActualStart(self):
 
+        #FIXME:update this test
+
         listValues = [
             [[23,57],[11,12],[23,12]],
             [[3,47],[15,36],[3,36]],
