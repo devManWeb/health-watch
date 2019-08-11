@@ -1,10 +1,63 @@
 import unittest
 
-from project.src.notification import UserNotification
+from project.src.notification import UserNotification, OnlyForThisFile
 
+private = OnlyForThisFile()
 toTest = UserNotification()
 
-class TestNotificationMethods(unittest.TestCase):
+class TestOnlyForThisFile(unittest.TestCase):
+
+    #private.getDateStr() is not tested
+
+    def testAddMinutesToHour(self):
+
+        addValues = [
+            [[21,55],34,[22,29]],
+            [[7,32],5,[7,37]],
+            [[10,47],0,[10,47]],
+            [[23,55],60,[0,55]],
+            [[23,7],55,[0,2]],
+            [[12,0],20,[12,20]]
+        ]
+
+        for index in addValues:
+           
+            hour = index[0]
+            minutesToAdd = index[1]
+            result = index[2]
+            
+            self.assertEqual(
+                private.addMinutesToHour(hour,minutesToAdd),
+                result
+            )
+        
+        typeErrorValues = [
+            ["[21,55]",34,[22,29]],
+            [7,55,[7,37]],
+            [[7,32],"44",[7,37]]
+        ]
+
+        for index in typeErrorValues:
+            with self.assertRaises(TypeError):
+                hour = index[0]
+                minutesToAdd = index[1]
+                result = index[2]
+                private.addMinutesToHour(hour,minutesToAdd)
+
+        valueErrorValues = [
+            [[21,55],61,[22,29]],
+            [[7,32],-1,[7,37]],        
+        ]
+
+        for index in valueErrorValues:
+            with self.assertRaises(ValueError):
+                hour = index[0]
+                minutesToAdd = index[1]
+                result = index[2]
+                private.addMinutesToHour(hour,minutesToAdd)
+
+
+class TestUserNotification(unittest.TestCase):
     
     '''
     this methods should always start with "test"

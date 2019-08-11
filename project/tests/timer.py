@@ -150,12 +150,14 @@ class TestTimerMethods(unittest.TestCase):
         
     def testGetActualStart(self):
 
-        #FIXME:update this test
-
         listValues = [
-            [[23,57],[11,12],[23,12]],
+            [[23,57],[22,12],[23,12]],
+            [[23,11],[22,12],[22,12]],
             [[3,47],[15,36],[3,36]],
-            [[0,27],[23,59],[0,59]],
+            [[3,35],[15,36],[2,36]],
+            [[0,59],[23,59],[0,59]],
+            [[21,00],[14,00],[21,0]],
+            [[0,27],[23,59],[23,59]],
             [[15,57],[16,0],[15,0]]
         ]
         
@@ -166,7 +168,7 @@ class TestTimerMethods(unittest.TestCase):
 
             self.assertEqual(private.getActualStart(actual,startPoint),result)         
 
-#clockManager() is not tested
+#class ClockManager is not tested
 
 if __name__ == '__main__':
     unittest.main()

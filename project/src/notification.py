@@ -27,6 +27,40 @@ class OnlyForThisFile():
 
 		return dateStr
 
+	def addMinutesToHour(self,hour,minutesToAdd):
+		'''
+		this method is used for adding minutesToAdd to hour
+		hour is a list of integers (hours,minutes)
+		minutesToAdd is an integer in minutes
+		if we get an hour over 23:59, we fix it
+		if minutesToAdd > 60, we get a ValueError
+		'''
+		if type(hour) != list or type(minutesToAdd) != int:
+			raise TypeError("Wrong types given to this function")
+
+		if not 0 <= minutesToAdd <= 60:
+			raise ValueError("Adding more than 60 or less than 0 minutes")
+
+		addHours = int(minutesToAdd // 60)
+		addMinutes = minutesToAdd - (addHours * 60)
+
+		resultHours = hour[0] + addHours
+		resultMinutes = hour[1] + addMinutes
+
+		extraMin = 0
+		extraHour = 0
+
+		if resultMinutes > 59:
+			extraMin = resultMinutes - 60
+			resultMinutes = extraMin
+			resultHours = resultHours + 1
+
+		if resultHours > 23:
+			extraHour = resultHours - 24
+			resultHours = extraHour
+
+		return [resultHours,resultMinutes]
+
 	def drawBar(self,count):
 		#draws the progress bar on the terminal
 		barLength = 30
@@ -73,8 +107,8 @@ class UserNotification():
 		delay is the delay in minutes
 		'''
 
-		self.startTimeArr = comm.addMinutesToHour(newStart,delay)
-		self.endTimeArr = comm.addMinutesToHour(self.startTimeArr,minutes)
+		self.startTimeArr = private.addMinutesToHour(newStart,delay)
+		self.endTimeArr = private.addMinutesToHour(self.startTimeArr,minutes)
 
 	def getBarLength(self,actual):
 		'''
