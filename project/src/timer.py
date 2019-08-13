@@ -125,6 +125,7 @@ class ClockManager():
 		'''
 		This function checks the current time and confronts it the timetables
 		calls the notification methods with the correct arguments
+		FIXME:if we are in the last working hour, we might get a wrong result
 		'''
 		actualTime = comm.getActualTime()
 		timerValue = 20 #change this for the update frequency, now is every 20seconds
@@ -136,18 +137,9 @@ class ClockManager():
 				self.actualStart = private.getActualStart(actualTime,self.workStart)
 				
 				if private.isInPause(self.workStart,actualTime,self.pauseLength):
-					'''
-					es: if we start working at 8:30 and now it is 10.20
-					and we have setted 5 minute of pause,
-					we start the pause at 10.25 (9:30 + 55 minutes of work)
-					'''
 					notify.message("Time to take a break!")
 					notify.setInterval(self.actualStart,self.pauseLength,self.workLenght)		
 				else:
-					'''
-					FIXME:if we are in the last working hour, we might get 
-					a wrong result on the progress bar
-					'''
 					notify.message("Time to work now!")
 					notify.setInterval(self.actualStart,self.workLenght,0)
 
@@ -167,10 +159,6 @@ class ClockManager():
 					notify.message("Time to take a break!")
 					notify.setInterval(self.actualStart,self.pauseLength,self.workLenght)
 				else:
-					'''
-					FIXME:if we are in the last working hour, we might get 
-					a wrong result on the progress bar
-					'''
 					notify.message("Time to work now!")
 					notify.setInterval(self.actualStart,self.workLenght,0)
 
@@ -193,10 +181,6 @@ class ClockManager():
 					notify.message("Time to take a break!")
 					notify.setInterval(self.actualStart,self.pauseLength,self.workLenght)
 				else:
-					'''
-					FIXME:if we are in the last working hour, we might get 
-					a wrong result on the progress bar
-					'''
 					notify.message("Time to work now!")
 					notify.setInterval(self.actualStart,self.workLenght,0)
 
