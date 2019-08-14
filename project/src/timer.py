@@ -1,7 +1,6 @@
 '''
 This is the main timer. Based on the current hour and minute, 
 we determine if it's time to take a break, to work or it is lunch time.
-#FIXME:this script still crashes when we are in pause
 '''	
 from threading import Timer
 
@@ -125,10 +124,27 @@ class ClockManager():
 		'''
 		This function checks the current time and confronts it the timetables
 		calls the notification methods with the correct arguments
-		FIXME:if we are in the last working hour, we might get a wrong result
 		'''
 		actualTime = comm.getActualTime()
-		timerValue = 20 #change this for the update frequency, now is every 20seconds
+
+		def calculateTimer(end,minutes,delay):
+			'''
+			this function calculates the values to pass to notify.setInterval
+			if we are in the last hour, we send the correct remaining time
+			end is the end value (in minutes) of the last working hour
+			variable1 and variable2 are the same of notify.setInterval
+			'''
+			timeToNextEvent = int(private.timeTo(self.actualStart,end) / 60)
+			if timeToNextEvent < minutes:
+				notify.setInterval(self.actualStart,timeToNextEvent,delay)
+			else:
+				notify.setInterval(self.actualStart,minutes,delay)
+
+		def endFunction():
+			#show the progress bar and start the update timer
+			timerValue = 20 #update frequency in seconds
+			notify.showProgressBar()
+			Timer(timerValue, self.timeChecker).start()
 	
 		if self.isPartTime == "yes":
 
@@ -138,13 +154,12 @@ class ClockManager():
 				
 				if private.isInPause(self.workStart,actualTime,self.pauseLength):
 					notify.message("Time to take a break!")
-					notify.setInterval(self.actualStart,self.pauseLength,self.workLenght)		
+					calculateTimer(self.workEnd,self.pauseLength,self.workLenght)
 				else:
 					notify.message("Time to work now!")
-					notify.setInterval(self.actualStart,self.workLenght,0)
+					calculateTimer(self.workEnd,self.workLenght,0)
 
-				notify.showProgressBar().start()
-				Timer(timerValue, self.timeChecker).start()
+				endFunction()
 
 			else:
 				notify.message("Now it's not time to work!","exit")
@@ -157,21 +172,16 @@ class ClockManager():
 
 				if private.isInPause(self.workStart,actualTime,self.pauseLength):
 					notify.message("Time to take a break!")
-					notify.setInterval(self.actualStart,self.pauseLength,self.workLenght)
+					calculateTimer(self.lunchStart,self.pauseLength,self.workLenght)
 				else:
 					notify.message("Time to work now!")
-					notify.setInterval(self.actualStart,self.workLenght,0)
-
-				notify.showProgressBar()
-				Timer(timerValue, self.timeChecker).start()
+					calculateTimer(self.lunchStart,self.workLenght,0)
 
 			elif private.compareTime(self.lunchStart,actualTime,self.lunchEnd):
 
 				notify.message("Time to go eating!")
 				notify.setStartEnd(self.lunchStart,self.lunchEnd)
-
-				notify.showProgressBar()
-				Timer(timerValue, self.timeChecker).start()
+				endFunction()
 
 			elif private.compareTime(self.lunchEnd,actualTime,self.workEnd):
 
@@ -179,13 +189,12 @@ class ClockManager():
 				
 				if private.isInPause(self.lunchEnd,actualTime,self.pauseLength):
 					notify.message("Time to take a break!")
-					notify.setInterval(self.actualStart,self.pauseLength,self.workLenght)
+					calculateTimer(self.workEnd,self.pauseLength,self.workLenght)
 				else:
 					notify.message("Time to work now!")
-					notify.setInterval(self.actualStart,self.workLenght,0)
+					calculateTimer(self.workEnd,self.workLenght,0)
 
-				notify.showProgressBar()
-				Timer(timerValue, self.timeChecker).start()
+				endFunction()
 
 			else:
 				notify.message("Now it's not time to work!","exit")
