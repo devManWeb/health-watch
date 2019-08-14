@@ -67,12 +67,20 @@ class TestTimerMethods(unittest.TestCase):
     def testTimeTo(self):
 
         arguments = [
+            #same day
             [[8,59],[9,34],2100],
             [[7,25],[12,0],16500],
             [[0,2],[9,7],32700],
             [[23,7],[23,34],1620],
             [[1,2],[3,4],7320],
-            [[0,0],[0,34],2040]
+            [[0,0],[0,34],2040],
+            #diffent days
+            [[9,34],[8,59],84300],
+            [[10,0],[7,25],77100],
+            [[9,7],[0,2],53700],
+            [[23,34],[23,7],84780],
+            [[3,4],[1,2],79080],
+            [[0,34],[0,0],84360]
         ]
 
         for index in arguments:
@@ -80,18 +88,6 @@ class TestTimerMethods(unittest.TestCase):
             endValue = index[1]
             result = index[2]
             self.assertEqual(private.timeTo(actual,endValue),result)
-     
-        valueErrorConditions = [
-            [[12,59],[0,34]],
-            [[15,25],[12,0]],
-            [[0,2],[0,0]]
-        ]
-
-        for index in valueErrorConditions:
-            actual = index[0]
-            endValue = index[1]
-            with self.assertRaises(ValueError):
-                private.timeTo(actual,endValue)
         
                 
     def testIntervals(self):

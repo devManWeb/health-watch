@@ -43,15 +43,15 @@ class OnlyForThisFile():
 		how much time is left (in seconds) from actual to endValue?
 		actual and toConfront are lists of integers (hours and minutes)
 		08/08/2019: actual was added to the params for testing purpose
+		14/08/2019: fix for hours in different days
 		'''
 		actualSec = comm.convertToSeconds(actual)
 		endValueSec = comm.convertToSeconds(endValue)
 
-		result = endValueSec - actualSec
-		if(result > 0):
-			return result
-		else:
-			raise ValueError("Negative interval!")
+		if endValueSec < actualSec:
+			endValueSec = endValueSec + (24 * 60 * 60) #we add an entire day
+		
+		return endValueSec - actualSec
 
 	def isInPause(self,startPause, actual, pauseDuration):
 		'''
@@ -176,6 +176,8 @@ class ClockManager():
 				else:
 					notify.message("Time to work now!")
 					calculateTimer(self.lunchStart,self.workLenght,0)
+
+				endFunction()
 
 			elif private.compareTime(self.lunchStart,actualTime,self.lunchEnd):
 
