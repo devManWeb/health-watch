@@ -27,3 +27,12 @@ python -m project.tests.nameOfTheTest
 ```
 
 where nameOfTheTest is the desired test.
+
+## Dependencies
+
+[This project use plyer, distributed with the MIT licence](https://pypi.org/project/plyer/). 
+In order to use this script, you have to install it:
+
+```
+pip install plyer
+```

@@ -1,6 +1,7 @@
 #notify the user and to show a progress bar
 
 import os
+from plyer import notification
 
 from project.src.common import CommonMethods
 
@@ -8,6 +9,24 @@ comm = CommonMethods()
 
 class OnlyForThisFile():
     #specific methods to be used only in this file
+
+	def __init__(self):
+		self.lastMessage = ""
+
+	def showPopup(self,msgToDisplay):
+		'''
+		show message popup in the icon tray
+		only if the last message was different
+		'''
+		if self.lastMessage != msgToDisplay:
+			self.lastMessage = msgToDisplay
+			
+			popupMessage = private.getDateStr() + " - " + msgToDisplay
+			notification.notify(
+				"Health watch info",
+				popupMessage,
+				"Health watch"
+			)
 
 	def getDateStr(self):
 		#used to make the date for the terminal messages
@@ -81,13 +100,15 @@ class UserNotification():
 
 	def message(self,msgText,*exitVal):
 		'''
-		textual message in the terminal,
+		textual message in the terminal 
 		the first thing this fx does is clearing the terminal
 		if exitVal is "exit", we display "press any key to exit"
+		26/08/2019: added popup messages with plyer
 		'''
 		os.system('cls||clear')
 		print("Welcome to the Health Watch")
 		print("\n" + msgText)
+		private.showPopup(msgText)
 		if exitVal == "exit":
 			input("Press any key to exit...")
 

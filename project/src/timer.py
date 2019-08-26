@@ -1,6 +1,7 @@
 '''
 This is the main timer. Based on the current hour and minute, 
 we determine if it's time to take a break, to work or it is lunch time.
+FIXME:error with hours like 17:00
 '''	
 from threading import Timer
 
