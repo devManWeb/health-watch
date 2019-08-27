@@ -1,9 +1,12 @@
 #notify the user and to show a progress bar
 
 import os
+if os.name == "nt":
+	from winsound import Beep
 from plyer import notification
 
 from project.src.common import CommonMethods
+from project.src.config import ConfigIO
 
 comm = CommonMethods()
 
@@ -15,18 +18,23 @@ class OnlyForThisFile():
 
 	def showPopup(self,msgToDisplay):
 		'''
-		show message popup in the icon tray
 		only if the last message was different
+		show message popup in the icon tray (if configured)
+		play a beep (if configured)
 		'''
 		if self.lastMessage != msgToDisplay:
 			self.lastMessage = msgToDisplay
-			
-			popupMessage = private.getDateStr() + " - " + msgToDisplay
-			notification.notify(
-				"Health watch info",
-				popupMessage,
-				"Health watch"
-			)
+
+			if cfg.readProp("showPopup") == "yes":
+				popupMessage = private.getDateStr() + " - " + msgToDisplay
+				notification.notify(
+					"Health watch info",
+					popupMessage,
+					"Health watch"
+				)
+
+			if cfg.readProp("playBeep") == "yes":
+				self.playBeep()
 
 	def getDateStr(self):
 		#used to make the date for the terminal messages
@@ -88,7 +96,20 @@ class OnlyForThisFile():
 		barTxt = '#' * value + '-' * (barLength - value)
 		print(self.getDateStr() + ' [%s] %s%s%s\r' % (barTxt, percentual, '%', ""))
 
+	def playBeep(self):
+		'''
+		generate a beep
+		we use different methods if we are using windows or mac/linux
+		'''
+		FREQUENCY_VAL = 500
+		DURATION_MS = 300
+		if os.name == "nt":
+			Beep(FREQUENCY_VAL, DURATION_MS)
+		else:
+			os.system('play -nq -t alsa synth {} sine {}'.format(DURATION_MS, FREQUENCY_VAL))
+			
 
+cfg = ConfigIO()
 private = OnlyForThisFile()
 
 
