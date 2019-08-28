@@ -1,7 +1,6 @@
 '''
 This is the main timer. Based on the current hour and minute, 
 we determine if it's time to take a break, to work or it is lunch time.
-FIXME:error with hours like 17:00
 '''	
 from threading import Timer
 
@@ -54,7 +53,7 @@ class OnlyForThisFile():
 		
 		return endValueSec - actualSec
 
-	def isInPause(self,startPause, actual, pauseDuration):
+	def isInPause(self, startPause, actual, pauseDuration):
 		'''
 		If we're working, is it time to take a break? 
 		To calculate this, we take the starting minutes and add the work minutes
@@ -69,7 +68,7 @@ class OnlyForThisFile():
 
 		if startPauseMinute > endpauseMinute:
 			#if the end minutes are in the next hour
-			if (startPauseMinute <= actualMinute <= 59) or (0 <= actualMinute <= endpauseMinute):
+			if (startPauseMinute <= actualMinute <= 59) or (0 <= actualMinute < endpauseMinute):
 				return True
 			else:
 				return False
@@ -95,13 +94,14 @@ class OnlyForThisFile():
 		if startPoint minutes are bigger than actual minutes,
 		we reduce the return value hours by one
 		this is used with workStart or lunchEnd
+		FIXME:a bug when hours are near the start point
 		'''
-		if startPoint[1] > actual[1]:	
+		if startPoint[1] >= actual[1]:	
 			realStartHour = actual[0] - 1
 			if realStartHour < 0:
 				realStartHour = 23
 		else:
-			realStartHour = actual [0]
+			realStartHour = actual[0]
 		return [realStartHour,startPoint[1]]
 
 
@@ -119,7 +119,7 @@ class ClockManager():
 		self.isPartTime = cfg.readProp("isparttime")
 		self.pauseLength = int(cfg.readProp("pauseLength"))
 		self.workLenght = 60 - self.pauseLength
-		self.actualStart = [0,0]
+		self.actualStart = [0,0]	
 
 	def timeChecker(self):
 		'''
@@ -127,6 +127,25 @@ class ClockManager():
 		calls the notification methods with the correct arguments
 		'''
 		actualTime = comm.getActualTime()
+
+		def calculatePausesDone(suppliedActualTime):	
+			'''
+			this function returns the total number of pauses
+			and those already done by the user
+			'''
+			totalWorkTime = private.timeTo(self.workStart,self.workEnd)
+			timePassed = private.timeTo(self.workStart,suppliedActualTime)
+
+			if self.isPartTime == "no":
+				lunchTimeSeconds = private.timeTo(self.lunchStart,self.lunchEnd)
+				totalWorkTime = totalWorkTime - lunchTimeSeconds
+				timePassed = timePassed - lunchTimeSeconds
+
+			#FIXME:possible bug here with different timebands
+			totalPauses = totalWorkTime // 3600
+			alreadyDone = timePassed // 3600
+
+			return [totalPauses,alreadyDone]	
 
 		def calculateTimer(end,minutes,delay):
 			'''
@@ -144,8 +163,12 @@ class ClockManager():
 		def endFunction():
 			#show the progress bar and start the update timer
 			timerValue = 20 #update frequency in seconds
-			notify.showProgressBar()
+			pausesData = calculatePausesDone(actualTime)
+			notify.setPausesData(pausesData)
+			notify.showData()
 			Timer(timerValue, self.timeChecker).start()
+
+
 	
 		if self.isPartTime == "yes":
 
@@ -188,6 +211,7 @@ class ClockManager():
 
 			elif private.compareTime(self.lunchEnd,actualTime,self.workEnd):
 
+				notify.setLunchEnded()
 				self.actualStart = private.getActualStart(actualTime,self.lunchEnd)
 				
 				if private.isInPause(self.lunchEnd,actualTime,self.pauseLength):

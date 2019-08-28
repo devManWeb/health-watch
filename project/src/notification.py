@@ -9,6 +9,7 @@ from project.src.common import CommonMethods
 from project.src.config import ConfigIO
 
 comm = CommonMethods()
+cfg = ConfigIO()
 
 class OnlyForThisFile():
     #specific methods to be used only in this file
@@ -107,9 +108,35 @@ class OnlyForThisFile():
 			Beep(FREQUENCY_VAL, DURATION_MS)
 		else:
 			os.system('play -nq -t alsa synth {} sine {}'.format(DURATION_MS, FREQUENCY_VAL))
-			
 
-cfg = ConfigIO()
+	def drawPausesChecks(self,total,done,lunchDone):
+		'''
+		draws the boxes of the total pauses,
+		also takes care of ticking those already done
+		and of the lunch pause (if it is enabled in the cfg file)
+		'''
+		upperRow = ""
+		lowerRow = ""
+
+		if cfg.readProp("isPartTime") == "no":
+			upperRow = "-L- "
+			if lunchDone:
+				lowerRow = "[X] "
+			else:
+				lowerRow = "[ ] "		
+
+		for i in range (1,total + 1):
+			upperRow = upperRow + " -" + str(i) + "- "
+			if i <= done:
+				lowerRow = lowerRow + " [X] "
+			else:
+				lowerRow = lowerRow + " [ ] "
+
+		print("\nPauses already done:")
+		print("\n" + upperRow)
+		print(lowerRow)		
+				
+
 private = OnlyForThisFile()
 
 
@@ -118,6 +145,9 @@ class UserNotification():
 	def __self__(self):
 		self.startTimeArr = ["0","0"]
 		self.endTimeArr = ["0","0"]
+		self.totalPauses = 0
+		self.pausesDone = 0
+		self.lunchEnded = False
 
 	def message(self,msgText,*exitVal):
 		'''
@@ -148,9 +178,17 @@ class UserNotification():
 		minutes is the duration of the interval in minutes, 
 		delay is the delay in minutes
 		'''
-
 		self.startTimeArr = private.addMinutesToHour(newStart,delay)
 		self.endTimeArr = private.addMinutesToHour(self.startTimeArr,minutes)
+
+	def setPausesData(self,arrayData):
+		#setter used by endFunction() in timer.py
+		self.totalPauses = arrayData[0]
+		self.pausesDone = arrayData[1]
+
+	def setLunchEnded(self):
+		#simple setter, is the lunch finished?
+		self.lunchEnded = True
 
 	def getBarLength(self,actual):
 		'''
@@ -160,7 +198,6 @@ class UserNotification():
 		08/08/2019: actual is added as a param for testing purpouse
 		actual is a list of integers (hours and minutes) with the actual time
 		'''
-
 		positionBar = 0
 		actualSeconds = comm.convertToSeconds(actual)	
 
@@ -179,6 +216,7 @@ class UserNotification():
 		if we have an interval between AA:BB and CC:DD
 		(endSeconds - startSeconds) : (actualSeconds - startSeconds) = 100 : positionBar
 		'''
+
 		startSeconds = comm.convertToSeconds(self.startTimeArr)
 		endSeconds = comm.convertToSeconds(self.endTimeArr)
 
@@ -194,8 +232,12 @@ class UserNotification():
 		else:
 			return positionBar	
 			
-	def showProgressBar(self):
-		#draws the bar with the current time
+	def showData(self):
+		'''
+		draws the bar with the current time
+		shows the info about the pauses
+		'''
 		actualTime = comm.getActualTime()
 		length = self.getBarLength(actualTime)
 		private.drawBar(length)
+		private.drawPausesChecks(self.totalPauses,self.pausesDone,self.lunchEnded)
