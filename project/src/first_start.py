@@ -14,7 +14,11 @@ class OnlyForThisFile():
     def isValidHour(self,userInput):
         '''
         is the entered data is in the correct time format AA:BB or A:BB?
-        is the inserted interval within the numerical limits allowed?
+
+        arguments
+            userInput: entered data
+        return
+            True if is a valid hour, otherwise False
         '''
         userInput = str(userInput)
         if (4 <= len(userInput) <= 6) and re.match(r'(\d)?\d:\d\d',userInput):
@@ -24,7 +28,12 @@ class OnlyForThisFile():
         return False #if the other cases are not valid
 
     def isYesNo(self,userInput):
-        #checks if the input is "yes" or "no"
+        '''
+        checks if the input is "yes" or "no"
+
+        arguments
+            userInput: string to check
+        '''
         userInput = str(userInput).lower()
         if userInput == "yes" or userInput == "no":
             return True
@@ -42,15 +51,24 @@ class OnlyForThisFile():
     def collectUserInput(self,inputTxt,configIndex,typeInput):
         '''
         Collects the data in the correct format
-        inputTxt is the user data to be checked
-        configIndex is the name in the .ini configuration file
-        typeInput is the type to be inserted (hour/yesNo/pause)
+
+        arguments
+            inputTxt: user data to be checked
+            configIndex: name in the .ini configuration file
+            typeInput: type to be inserted (hour/yesNo/pause)
+        return
+            False if the input is invalid
         '''
 
         def controlInput(test,param):
             '''
             control the inserted data with the right test
-            we pass param to controlInput
+
+            arguments
+                test: return value of the test
+                param: what to write on self.collectUserInput
+            return
+                True if input is correct, otherwise False
             '''
             if test == False:
                 print("Invalid value, try again!")

@@ -5,15 +5,25 @@ from datetime import datetime
 class CommonMethods():
 
     def getActualTime(self):
-        #returns a list with current integer hours and minutes
+        '''
+        return 
+            list with current integer hours and minutes
+        '''
         actual = datetime.now().strftime('%H:%M').split(":")
         actual = [int(x) for x in actual]
+        
+        #return [16,54] #ONLY FOR DEBUGGING
         return actual
 
     def convertToSeconds(self,arrToConvert):
         '''
-        converts a list of integers (hours and minutes) to seconds
-        performs a check if hours and minutes are valid
+        arguments
+            arrToConvert: list of integers (hours and minutes)
+        return
+            arrToConvert in a seconds int value
+        raise
+            ValueError if somethin in arrToConvert is too big
+            TypeError if arrToConvert does not contain only integers
         '''
         hours = arrToConvert[0]
         minutes = arrToConvert[1]
@@ -27,7 +37,17 @@ class CommonMethods():
             raise TypeError("Hours or minutes are not integers")
 
     def formatMinute(self,minute):
-        #if we exceed 59 minutes, we start from 0
+        '''
+        if we exceed 59 minutes, we start from 0
+        
+        arguments
+            minute: minute to format
+        return
+            formatted minutes
+        raise
+            ValueError if minute is too big
+            TypeError if minute is negative
+        '''
         if isinstance(minute, int):
             if 0 <= minute <= 59:
                 return minute

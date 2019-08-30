@@ -13,7 +13,13 @@ class ConfigIO():
     def readProp(self,toRead):   
         '''
         read a generic prop from the config file
-        the read index must be a string
+
+        arguments
+            toRead: property string name
+        return
+            value of the property
+        raise
+            TypeError if toRead is not a string
         '''
         if type(toRead) is str:
             return self.config['DEFAULT'][toRead]
@@ -22,9 +28,14 @@ class ConfigIO():
 
     def readTime(self,toRead):
         '''
-        reads the data from the configuration file
-        we prepare a list of integers (hours and minutes)
-        the read index must be a string
+        read a generic prop from the config file
+
+        arguments
+            toRead: property string name
+        return
+            list of integers (hours and minutes)
+        raise
+            TypeError if toRead is not a string
         '''
         if type(toRead) is str:
             fromCfg =  self.config["DEFAULT"][toRead]
@@ -36,10 +47,17 @@ class ConfigIO():
 
     def writeProp(self,toWrite,newValue):
         '''
-        reads the data from the ini file
-        the write index and the value must be strings
+        write the data on the ini file
+
+        arguments
+            toWrite: property string name
+            newValue: new value to write
+        return
+            True if the operation was successful
+        raise
+            TypeError if toWrite or newValue are not strings
         '''
-        if type(toWrite) is str and type(newValue):
+        if type(toWrite) is str and type(newValue) is str:
             self.config['DEFAULT'][toWrite] = newValue
             #actual writing on config.ini
             with open("config_file.ini", "w") as newParams:    

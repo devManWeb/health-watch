@@ -19,9 +19,12 @@ class OnlyForThisFile():
 
 	def showPopup(self,msgToDisplay):
 		'''
-		only if the last message was different
-		show message popup in the icon tray (if configured)
-		play a beep (if configured)
+		If the last message was different
+		show a popup (if configured)
+		and play a beep (if configured)
+
+		parameters
+			msgToDisplay: message to display
 		'''
 		if self.lastMessage != msgToDisplay:
 			self.lastMessage = msgToDisplay
@@ -42,7 +45,11 @@ class OnlyForThisFile():
 		def formatValue(intNum):
 			'''
 			if it is necessary, add an initial 0
-			converts the int value to string
+
+			arguments
+				intNum: integer value to check
+			return
+				formatted intNum string value
 			'''
 			if intNum <= 9:
 				return "0" + str(intNum)
@@ -57,11 +64,16 @@ class OnlyForThisFile():
 
 	def addMinutesToHour(self,hour,minutesToAdd):
 		'''
-		this method is used for adding minutesToAdd to hour
-		hour is a list of integers (hours,minutes)
-		minutesToAdd is an integer in minutes
+		this method is used for adding minutesToAdd to hour,
 		if we get an hour over 23:59, we fix it
-		if minutesToAdd > 60, we get a ValueError
+
+		arguments
+			hour: list of integers (hours,minutes)
+			minutesToAdd:integer in minutes
+		return
+			list of hours and minutes
+		raise
+			ValueError if minutesToAdd > 60
 		'''
 		if type(hour) != list or type(minutesToAdd) != int:
 			raise TypeError("Wrong types given to this function")
@@ -90,7 +102,12 @@ class OnlyForThisFile():
 		return [resultHours,resultMinutes]
 
 	def drawBar(self,count):
-		#draws the progress bar on the terminal
+		'''
+		draws the progress bar on the terminal
+
+		arguments
+			count: value for the bar
+		'''
 		barLength = 30
 		value = int(round(barLength * count / 100))
 		percentual = round(100.0 * count / 100, 1)
@@ -100,7 +117,7 @@ class OnlyForThisFile():
 	def playBeep(self):
 		'''
 		generate a beep
-		we use different methods if we are using windows or mac/linux
+		different methods if windows or mac/linux
 		'''
 		FREQUENCY_VAL = 500
 		DURATION_MS = 300
@@ -111,31 +128,58 @@ class OnlyForThisFile():
 
 	def drawPausesChecks(self,total,done,lunchDone):
 		'''
-		draws the boxes of the total pauses,
-		also takes care of ticking those already done
-		and of the lunch pause (if it is enabled in the cfg file)
+		draws the boxes of the pauses with the numbers
+
+		arguments
+			total: calculated total pauses
+			done: pauses already done
+			lunchDone: boolean, is lunch already done?
 		'''
-		upperRow = ""
-		lowerRow = ""
+		lunchEnabled = False
+		addLunch = 0
 
 		if cfg.readProp("isPartTime") == "no":
-			upperRow = "-L- "
-			if lunchDone:
-				lowerRow = "[X] "
-			else:
-				lowerRow = "[ ] "		
+			lunchEnabled = True
+			addLunch = 1
+		
+		#empty list (total + addLunch) x (total + addLunch)
+		rowsData = [
+			[None] * (total + addLunch + 1),
+			[None] * (total + addLunch + 1)
+		]
 
-		for i in range (1,total + 1):
-			upperRow = upperRow + " -" + str(i) + "- "
-			if i <= done:
-				lowerRow = lowerRow + " [X] "
+		if lunchEnabled:  
+			#add the indication of the lunch if necessary
+			rowsData[0][0] = "-L- "
+			if lunchDone:
+				rowsData[1][0] = "[X] "
 			else:
-				lowerRow = lowerRow + " [ ] "
+				rowsData[1][0] = "[ ] "		
+
+		for i in range (addLunch, total + addLunch + 1):
+
+			if lunchEnabled:
+				rowsData[0][i] = " -" + str(i) + "- "
+			else:
+				rowsData[0][i] = " -" + str(i + 1) + "- "
+			if i <= done:
+				rowsData[1][i] = " [X] "
+			else:
+				rowsData[1][i] = " [ ] "
 
 		print("\nPauses already done:")
-		print("\n" + upperRow)
-		print(lowerRow)		
-				
+
+		numberOfItems = total
+		if lunchEnabled:
+			numberOfItems + 1
+
+		row1 = ""
+		row2 = ""
+		for l in range(0,total + 1):
+			row1 = row1 + str(rowsData[0][l])
+			row2 = row2 + str(rowsData[1][l])
+		print(row1)
+		print(row2)
 
 private = OnlyForThisFile()
 
@@ -151,10 +195,11 @@ class UserNotification():
 
 	def message(self,msgText,*exitVal):
 		'''
-		textual message in the terminal 
-		the first thing this fx does is clearing the terminal
-		if exitVal is "exit", we display "press any key to exit"
-		26/08/2019: added popup messages with plyer
+		clears and display a textual message in the terminal 
+
+		arguments
+			msgText: string text to display
+			exitVal: (optional) if "exit", we display "press any key to exit"
 		'''
 		os.system('cls||clear')
 		print("Welcome to the Health Watch")
@@ -165,38 +210,51 @@ class UserNotification():
 
 	def setStartEnd(self,newStart,newEnd):
 		'''
-		used for intervals from a specific time to another
-		from AA:BB to CC
+		setterfor intervals from AA:BB to CC:DD
+		arguments
+			newStart,newEnd: lists of integers
 		'''
 		self.startTimeArr = newStart
 		self.endTimeArr = newEnd
 
 	def setInterval(self,newStart,minutes,delay):
 		'''
-		used for a set time interval in minutes
-		newStart is is the start time of the work,
-		minutes is the duration of the interval in minutes, 
-		delay is the delay in minutes
+		setter for interval in minutes
+
+		arguments
+			newStart: list of integers, start time of the work,
+			minutes: int, duration of the interval in minutes, 
+			delay: int, the delay in minutes
 		'''
 		self.startTimeArr = private.addMinutesToHour(newStart,delay)
 		self.endTimeArr = private.addMinutesToHour(self.startTimeArr,minutes)
 
 	def setPausesData(self,arrayData):
-		#setter used by endFunction() in timer.py
+		'''
+		setter used by endFunction() in timer.py
+
+		arguments
+			arrayData: list of integers (total and end pauses)
+		'''
 		self.totalPauses = arrayData[0]
 		self.pausesDone = arrayData[1]
 
-	def setLunchEnded(self):
-		#simple setter, is the lunch finished?
-		self.lunchEnded = True
+	def setLunchStatus(self,boolean):
+		'''simple setter, is the lunch finished?
+		
+		arguments
+			boolean: boolean status for the lunch to ser
+		'''
+		self.lunchEnded = boolean
 
 	def getBarLength(self,actual):
 		'''
-		returns the percentage value fort the progress bar
-		only if it is between 0 and 100
-		otherwise, we raise a ValueError
-		08/08/2019: actual is added as a param for testing purpouse
-		actual is a list of integers (hours and minutes) with the actual time
+		arguments
+			actual: list of integers (hours and minutes) with the actual time
+		return
+			percentage value fort the progress bar only if between 0 and 100
+		raise
+			ValueError if bar value is not between 0 and 100		
 		'''
 		positionBar = 0
 		actualSeconds = comm.convertToSeconds(actual)	
@@ -205,7 +263,9 @@ class UserNotification():
 			'''
 			if end and start are in two diffent days
 			we add an entire day in seconds
-			otherwise, we do nothing
+
+			arguments
+				endSeconds, startSeconds: int of seconds
 			'''
 			if endSeconds < startSeconds:
 				return endSeconds + (24 * 60 * 60)

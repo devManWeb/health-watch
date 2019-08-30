@@ -18,9 +18,13 @@ class OnlyForThisFile():
 	def compareTime(self,start,actual,end):
 		'''
 		is actual between start and end?
-		actual,start and end must be lists of integers (hours and minutes)
-		this function returns True or False when there is no error
-		08/08/2019: actual was added to the params for testing purpose
+
+		arguments
+			actual,start and end: lists of integers (hours and minutes)
+		return
+			True or False when there is no error
+		raise
+			ValueError if the interval is equal to 0 seconds
 		'''
 		startSec = comm.convertToSeconds(start)
 		actualSec = comm.convertToSeconds(actual)
@@ -41,9 +45,12 @@ class OnlyForThisFile():
 	def timeTo(self,actual,endValue):
 		'''
 		how much time is left (in seconds) from actual to endValue?
-		actual and toConfront are lists of integers (hours and minutes)
-		08/08/2019: actual was added to the params for testing purpose
 		14/08/2019: fix for hours in different days
+
+		arguments
+			actual and toConfront: lists of integers (hours and minutes)
+		return 
+			seconds value between actual and end		
 		'''
 		actualSec = comm.convertToSeconds(actual)
 		endValueSec = comm.convertToSeconds(endValue)
@@ -56,10 +63,12 @@ class OnlyForThisFile():
 	def isInPause(self, startPause, actual, pauseDuration):
 		'''
 		If we're working, is it time to take a break? 
-		To calculate this, we take the starting minutes and add the work minutes
-		startPause and actual are lists of integers (hours and minutes)
-		pauseDuration is an integer in minutes
-		08/08/2019: actual was added to the params for testing purpose
+
+		arguments
+			startPause and actual are lists of integers (hours and minutes)
+			pauseDuration is an integer in minutes
+		return
+			True or False
 		'''
 		actualMinute = actual[1]
 		workDuration = 60 - pauseDuration
@@ -89,14 +98,17 @@ class OnlyForThisFile():
 	def getActualStart(self,actual,startPoint):
 		'''
 		with this app we calculate the actual start hour
-		to be used for notify.setInterval()
-		we take the actual hour and the minute of startPoint
-		if startPoint minutes are bigger than actual minutes,
-		we reduce the return value hours by one
-		this is used with workStart or lunchEnd
-		FIXME:a bug when hours are near the start point
+		arguments
+			actual,startPoint: list of integers (hours and minutes)
+		return
+			list of integers with the actual start
 		'''
-		if startPoint[1] >= actual[1]:	
+		if startPoint[1] > actual[1]:	
+			
+			'''
+			if startPoint minutes are bigger than actual minutes,
+			we reduce the return value hours by one
+			'''
 			realStartHour = actual[0] - 1
 			if realStartHour < 0:
 				realStartHour = 23
@@ -130,8 +142,12 @@ class ClockManager():
 
 		def calculatePausesDone(suppliedActualTime):	
 			'''
-			this function returns the total number of pauses
-			and those already done by the user
+			arguments
+				suppliedActualTime: actual time (list of integers [HH,MM])
+			return
+				total number of pauses
+				those already done by the user
+			#FIXME:possible bug here with different timebands
 			'''
 			totalWorkTime = private.timeTo(self.workStart,self.workEnd)
 			timePassed = private.timeTo(self.workStart,suppliedActualTime)
@@ -139,9 +155,14 @@ class ClockManager():
 			if self.isPartTime == "no":
 				lunchTimeSeconds = private.timeTo(self.lunchStart,self.lunchEnd)
 				totalWorkTime = totalWorkTime - lunchTimeSeconds
-				timePassed = timePassed - lunchTimeSeconds
 
-			#FIXME:possible bug here with different timebands
+				if private.compareTime(self.lunchEnd,suppliedActualTime,self.workEnd):
+					'''
+					30/08/2019: fixed a bug
+					subtract the lunchtime only if the lunch is already ended
+					'''
+					timePassed = timePassed - lunchTimeSeconds
+
 			totalPauses = totalWorkTime // 3600
 			alreadyDone = timePassed // 3600
 
@@ -151,8 +172,10 @@ class ClockManager():
 			'''
 			this function calculates the values to pass to notify.setInterval
 			if we are in the last hour, we send the correct remaining time
-			end is the end value (in minutes) of the last working hour
-			variable1 and variable2 are the same of notify.setInterval
+			
+			arguments
+				end: end value (in minutes) of the last working hour
+				minutes and delay: refer to notify.setInterval
 			'''
 			timeToNextEvent = int(private.timeTo(self.actualStart,end) / 60)
 			if timeToNextEvent < minutes:
@@ -168,7 +191,7 @@ class ClockManager():
 			notify.showData()
 			Timer(timerValue, self.timeChecker).start()
 
-
+		notify.setLunchStatus(False) #30/08/2019: default value to avoid bug
 	
 		if self.isPartTime == "yes":
 
@@ -211,7 +234,7 @@ class ClockManager():
 
 			elif private.compareTime(self.lunchEnd,actualTime,self.workEnd):
 
-				notify.setLunchEnded()
+				notify.setLunchStatus(True)
 				self.actualStart = private.getActualStart(actualTime,self.lunchEnd)
 				
 				if private.isInPause(self.lunchEnd,actualTime,self.pauseLength):
