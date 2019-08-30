@@ -9,6 +9,9 @@ The first time you open the script, you can configure:
 * is it a part-time job?
 * lounch break start and end hours
 * duration of breaks (1 to 10 minutes)
+* enable alert notifications and sounds?
+
+Health watch also shows the number of pauses to do and how many have been done during the day.
 
 Important: the script is still in development, at the moment it does not work correctly. There are several TODOs and FIXMEs.
 
@@ -34,5 +37,5 @@ where nameOfTheTest is the desired test.
 In order to use this script, you have to install it:
 
 ```
-pip install plyer
+pip3 install plyer
 ```
