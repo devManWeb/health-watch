@@ -13,7 +13,8 @@ The first time you open the script, you can configure:
 
 Health watch also shows the number of pauses to do and how many have been done during the day.
 
-Important: the script is still in development, at the moment it does not work correctly. There are several TODOs and FIXMEs.
+Important: the script is still in development, at the moment it could not work correctly. 
+There is a FIXME to check.
 
 ## Usage
 

@@ -183,15 +183,20 @@ class ClockManager():
 			else:
 				notify.setInterval(self.actualStart,minutes,delay)
 
-		def endFunction():
-			#show the progress bar and start the update timer
+		def fireNextTimer(showInfo = True):
+			'''
+			show the progress bar and start the update timer
+			arguments
+				arguments: show pauses already done, ecc.. (default True)
+			'''
 			timerValue = 20 #update frequency in seconds
-			pausesData = calculatePausesDone(actualTime)
-			notify.setPausesData(pausesData)
-			notify.showData()
+			if showInfo:
+				pausesData = calculatePausesDone(actualTime)
+				notify.setPausesData(pausesData)
+				notify.showData()
 			Timer(timerValue, self.timeChecker).start()
 
-		notify.setLunchStatus(False) #30/08/2019: default value to avoid bug
+		notify.setLunchStatus(True) #30/08/2019: default value to avoid bug
 	
 		if self.isPartTime == "yes":
 
@@ -206,10 +211,11 @@ class ClockManager():
 					notify.message("Time to work now!")
 					calculateTimer(self.workEnd,self.workLenght,0)
 
-				endFunction()
+				fireNextTimer()
 
 			else:
-				notify.message("Now it's not time to work!","exit")
+				notify.message("Now it's not time to work!")
+				fireNextTimer(False)
 
 		elif self.isPartTime == "no":
 
@@ -224,13 +230,13 @@ class ClockManager():
 					notify.message("Time to work now!")
 					calculateTimer(self.lunchStart,self.workLenght,0)
 
-				endFunction()
+				fireNextTimer()
 
 			elif private.compareTime(self.lunchStart,actualTime,self.lunchEnd):
 
 				notify.message("Time to go eating!")
 				notify.setStartEnd(self.lunchStart,self.lunchEnd)
-				endFunction()
+				fireNextTimer()
 
 			elif private.compareTime(self.lunchEnd,actualTime,self.workEnd):
 
@@ -244,7 +250,8 @@ class ClockManager():
 					notify.message("Time to work now!")
 					calculateTimer(self.workEnd,self.workLenght,0)
 
-				endFunction()
+				fireNextTimer()
 
 			else:
-				notify.message("Now it's not time to work!","exit")
+				notify.message("Now it's not time to work!")
+				fireNextTimer(False)

@@ -12,7 +12,7 @@ class CommonMethods():
         actual = datetime.now().strftime('%H:%M').split(":")
         actual = [int(x) for x in actual]
         
-        #return [16,54] #ONLY FOR DEBUGGING
+        #return [19,54] #ONLY FOR DEBUGGING
         return actual
 
     def convertToSeconds(self,arrToConvert):

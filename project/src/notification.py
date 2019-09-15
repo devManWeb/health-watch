@@ -193,20 +193,17 @@ class UserNotification():
 		self.pausesDone = 0
 		self.lunchEnded = False
 
-	def message(self,msgText,*exitVal):
+	def message(self,msgText):
 		'''
 		clears and display a textual message in the terminal 
 
 		arguments
 			msgText: string text to display
-			exitVal: (optional) if "exit", we display "press any key to exit"
 		'''
 		os.system('cls||clear')
 		print("Welcome to the Health Watch")
 		print("\n" + msgText)
 		private.showPopup(msgText)
-		if exitVal == "exit":
-			input("Press any key to exit...")
 
 	def setStartEnd(self,newStart,newEnd):
 		'''
