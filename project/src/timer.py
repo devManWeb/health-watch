@@ -196,7 +196,7 @@ class ClockManager():
 				notify.showData()
 			Timer(timerValue, self.timeChecker).start()
 
-		notify.setLunchStatus(True) #30/08/2019: default value to avoid bug
+		notify.setLunchStatus(False) #21/10/2019: we set False as default
 	
 		if self.isPartTime == "yes":
 
