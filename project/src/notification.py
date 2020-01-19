@@ -202,8 +202,8 @@ class UserNotification():
 		'''
 		os.system('cls||clear')
 		print("Welcome to the Health Watch")
-		print("\n" + msgText)
 		private.showPopup(msgText)
+		print("\n" + msgText)
 
 	def setStartEnd(self,newStart,newEnd):
 		'''
@@ -298,3 +298,17 @@ class UserNotification():
 		length = self.getBarLength(actualTime)
 		private.drawBar(length)
 		private.drawPausesChecks(self.totalPauses,self.pausesDone,self.lunchEnded)
+
+	def showHealthPoints(self,pointsNumber):
+		'''
+		Used to show the number of health points
+		The number of breaks is contained on self.totalPauses
+		Each break is 10 minutes, so the maximum score is:
+		self.totalPauses * 60
+
+		arguments
+			pointsNumber: number, calculated on timer.py
+		'''
+		#TODO:write this section
+		#maxScore = self.totalPauses * 60
+		print("\nHealth points: " + str(pointsNumber))# + "/MAX: " + str(maxScore))	

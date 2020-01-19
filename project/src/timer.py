@@ -3,14 +3,17 @@ This is the main timer. Based on the current hour and minute,
 we determine if it's time to take a break, to work or it is lunch time.
 '''	
 from threading import Timer
+from pynput import keyboard, mouse
 
 from project.src.config import ConfigIO
 from project.src.common import CommonMethods
 from project.src.notification import UserNotification	
+from project.src.track_usage import TrackUsage	
 
 cfg = ConfigIO()
 comm = CommonMethods()
 notify = UserNotification()
+usageStat = TrackUsage()
 
 class OnlyForThisFile():
     #specific methods to be used only in this file
@@ -131,7 +134,10 @@ class ClockManager():
 		self.isPartTime = cfg.readProp("isparttime")
 		self.pauseLength = int(cfg.readProp("pauseLength"))
 		self.workLenght = 60 - self.pauseLength
-		self.actualStart = [0,0]	
+		self.actualStart = [0,0]
+		self.pastMousePosition = [0,0]	
+		self.healthPoints = 0
+		self.lockPoints = True
 
 	def timeChecker(self):
 		'''
@@ -158,7 +164,6 @@ class ClockManager():
 
 				if private.compareTime(self.lunchEnd,suppliedActualTime,self.workEnd):
 					'''
-					30/08/2019: fixed a bug
 					subtract the lunchtime only if the lunch is already ended
 					'''
 					timePassed = timePassed - lunchTimeSeconds
@@ -189,14 +194,33 @@ class ClockManager():
 			arguments
 				arguments: show pauses already done, ecc.. (default True)
 			'''
-			timerValue = 20 #update frequency in seconds
+			timerValue = 10 #update frequency in seconds
 			if showInfo:
 				pausesData = calculatePausesDone(actualTime)
 				notify.setPausesData(pausesData)
 				notify.showData()
 			Timer(timerValue, self.timeChecker).start()
 
-		notify.setLunchStatus(False) #21/10/2019: we set False as default
+		def checkHealthPoints(deltaVar=1):
+			'''
+			function for calculating the health points
+			we increase or lower the score (no negative numbers)
+			if self.lockPoints is False, points are not changed
+			arguments
+				deltaVar: positive or negative int to add
+			'''
+			if not self.lockPoints and self.healthPoints >= 0:
+				self.healthPoints = self.healthPoints + deltaVar
+				self.healthPoints = round(self.healthPoints,1)	
+
+
+		#################### Main logic of the cycle ####################
+
+		notify.setLunchStatus(False) #False as default
+
+		#we monitor the mouse and the keyboard for the health points 
+		usageStat.setCallBack(checkHealthPoints(0.1))
+		usageStat.run()
 	
 		if self.isPartTime == "yes":
 
@@ -207,15 +231,20 @@ class ClockManager():
 				if private.isInPause(self.workStart,actualTime,self.pauseLength):
 					notify.message("Time to take a break!")
 					calculateTimer(self.workEnd,self.pauseLength,self.workLenght)
+					self.lockPoints = False
+					checkHealthPoints()
 				else:
 					notify.message("Time to work now!")
 					calculateTimer(self.workEnd,self.workLenght,0)
+					self.lockPoints = True
 
 				fireNextTimer()
 
 			else:
 				notify.message("Now it's not time to work!")
 				fireNextTimer(False)
+				self.lockPoints = True
+				self.healthPoints = 0
 
 		elif self.isPartTime == "no":
 
@@ -226,16 +255,19 @@ class ClockManager():
 				if private.isInPause(self.workStart,actualTime,self.pauseLength):
 					notify.message("Time to take a break!")
 					calculateTimer(self.lunchStart,self.pauseLength,self.workLenght)
+					self.lockPoints = False
+					checkHealthPoints()
 				else:
 					notify.message("Time to work now!")
 					calculateTimer(self.lunchStart,self.workLenght,0)
+					self.lockPoints = True
 
 				fireNextTimer()
 
 			elif private.compareTime(self.lunchStart,actualTime,self.lunchEnd):
-
 				notify.message("Time to go eating!")
 				notify.setStartEnd(self.lunchStart,self.lunchEnd)
+				self.lockPoints = True
 				fireNextTimer()
 
 			elif private.compareTime(self.lunchEnd,actualTime,self.workEnd):
@@ -246,12 +278,19 @@ class ClockManager():
 				if private.isInPause(self.lunchEnd,actualTime,self.pauseLength):
 					notify.message("Time to take a break!")
 					calculateTimer(self.workEnd,self.pauseLength,self.workLenght)
+					self.lockPoints = False
+					checkHealthPoints()
 				else:
 					notify.message("Time to work now!")
 					calculateTimer(self.workEnd,self.workLenght,0)
+					self.lockPoints = True
 
 				fireNextTimer()
 
 			else:
 				notify.message("Now it's not time to work!")
 				fireNextTimer(False)
+				self.healthPoints = 0
+				self.lockPoints = True	
+
+		notify.showHealthPoints(self.healthPoints)

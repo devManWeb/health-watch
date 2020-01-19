@@ -1,4 +1,5 @@
 import unittest
+from time import sleep
 
 from project.src.timer import OnlyForThisFile
 
@@ -164,6 +165,13 @@ class TestTimerMethods(unittest.TestCase):
             result = index[2]
 
             self.assertEqual(private.getActualStart(actual,startPoint),result)         
+
+    def testGetIdleTime(self):
+        #we only check the type here - one every second
+        print("Testing getIdleTime...")
+        for i in range (0,10):
+            self.assertTrue(type(private.getIdleTime()) is float) 
+            sleep(1)
 
 #class ClockManager is not tested
 
